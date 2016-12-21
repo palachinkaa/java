@@ -87,9 +87,9 @@ public class CommentController {
 
         return "redirect:/article/" + id;
     }
-    @GetMapping("/comments/edit/{id}")
+    @GetMapping("/comments/{id}/edit")
     @PreAuthorize("isAuthenticated()")
-    public String editComment(@PathVariable Integer id, Model model){
+    public String edit(@PathVariable Integer id, Model model){
         if (!this.commentRepository.exists(id)) {
             return "redirect:/";
         }
@@ -105,21 +105,20 @@ public class CommentController {
 
         return "base-layout";
     }
-    @PostMapping("/comments/edit/{id}")
+    @PostMapping("/comments/{id}/edit")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(@PathVariable Integer id,
-    CommentBindingModel commentBindingModel){
-        if(!this.commentRepository.exists(id)){
+    public String editProcess(@PathVariable Integer id, @Valid CommentBindingModel commentBindingModel, BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes){
+        if(bindingResult.hasErrors()){
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getFieldErrors());
             return "redirect:/comments/edit/" + id;
         }
-
         Comment comment = this.commentRepository.findOne(id);
-        Article article = this.articleRepository.findOne(comment.getArticle().getId());
-
-
         if(!isUserAuthorOrAdmin(comment)){
             return "redirect:/comments/" + id;
         }
+
+
 
         comment.setContent(commentBindingModel.getContent());
         comment.setTitle(commentBindingModel.getTitle());
@@ -140,12 +139,12 @@ public class CommentController {
             return "redirect:/";
         }
 
-        model.addAttribute("view", "comment/delete");
+        model.addAttribute("view", "comments/delete");
         model.addAttribute("comment", comment);
 
         return "base-layout";
     }
-    @PostMapping("/comment/delete/{id}")
+    @PostMapping("/comments/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteProcess(@PathVariable Integer id, CommentBindingModel commentBindingModel) {
 

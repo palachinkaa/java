@@ -18,8 +18,10 @@ public class Article {
     private Category category;
     private Set<Tag> tags;
     private Set<Comment> comments;
-
+    private int viewCount;
     public Article() {    }
+
+
 
     public Article(String title, String content, User author , Category category, HashSet<Tag> tags ) {
         this.title = title;
@@ -92,8 +94,17 @@ public class Article {
         return comments;
     }
 
+
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+    @JoinColumn(nullable = false , name = "views")
+    public int getViewCount() {
+        return this.viewCount + 1;
+    }
+
+    public void setViewCount(int viewCount) {
+       this.viewCount = viewCount ;
     }
 
     @Transient
